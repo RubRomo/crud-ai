@@ -5,7 +5,7 @@ type User = {
     name: string;
     price: number;
     stock: number;
-    archived: number;
+    active: number;
 };
 
 const ProductsTable = () => {
@@ -24,11 +24,11 @@ const ProductsTable = () => {
             <table className="table table-striped">
                 <thead>
                     <tr>
-                        <th>id</th>
-                        <th>name</th>
-                        <th>price</th>
-                        <th>stock</th>
-                        <th>archived</th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Active</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,7 +40,7 @@ const ProductsTable = () => {
                                     <td>{product.name}</td>
                                     <td>{product.price}</td>
                                     <td>{product.stock}</td>
-                                    <td>{product.archived ? "Yes" : "No"}</td>
+                                    <td>{product.active ? "Yes" : "No"}</td>
                                 </tr>
                             )
                         })

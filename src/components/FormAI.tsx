@@ -1,5 +1,5 @@
-
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import React from "react";
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { IoIosSend } from "react-icons/io";
 import { MdOutlineCancel } from "react-icons/md";
 
@@ -9,12 +9,13 @@ type Message = {
 };
 
 const FormAI = () => {
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<Message[]>([
-        {text: "Hello World", sender: "system"}
+        {text: "Hello! how could I support you?", sender: "system"}
     ]);
     const [isLoading, setLoading ] = useState(false);
+    const controllerRef = useRef<AbortController | null>(null);
 
     useEffect(() => {
         const chatContainer = containerRef.current;
@@ -32,6 +33,8 @@ const FormAI = () => {
         const userInput = inputRef.current?.value;
 
         if (userInput) {
+            controllerRef.current = new AbortController();
+
             setMessages((prevState) => [...prevState, {text: userInput, sender: "user"}])
             setLoading(true);
             fetch("http://localhost:3000/products/askai", {
@@ -39,19 +42,56 @@ const FormAI = () => {
                 body: JSON.stringify({prompt: userInput}),
                 headers: {
                     "Content-Type": "application/json",
-                }
+                },
+                signal: controllerRef.current.signal
             })
             .then((response) => response.json())
             .then((response) => {
                 setMessages((prevState) => [...prevState, {text: response.data, sender:"system"}])
             })
-            .catch(() => alert("Sorry there was a problem."))
-            .finally(() => setLoading(false))
+            .catch((error: any) => {
+                console.log(error);
+                if(error.name !== "AbortError"){
+                    alert("Sorry there was a problem.")
+                }
+            })
+            .finally(() => {
+                setLoading(false)
+            })
         }
         if (inputRef.current) {
             inputRef.current.value = "";
         }
     };
+
+    const handleChange = () => {
+        const userInput = inputRef.current;
+        const minRows = 1; 
+        const lineCount = userInput?.value.split('\n').length || minRows;
+
+        if(userInput?.rows){
+            userInput.rows = Math.max(minRows, lineCount);
+        }
+    }
+
+    const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            const userInput = inputRef.current;
+            // it calls dynamically the form from the node where event was triggered
+            handleSubmit(e as unknown as FormEvent);
+            if(userInput?.rows){
+                userInput.rows = 1;
+            }
+        }
+    }
+
+    const handleAbort = () => {
+        if (controllerRef.current) {
+            controllerRef.current.abort();
+            controllerRef.current = null;
+        }
+    }
 
   return (
     <div className="container mt-5">
@@ -63,9 +103,14 @@ const FormAI = () => {
                         messages.map((msg, index) => (
                                 <span 
                                     key={index} 
-                                    className={`p-2 rounded mb-3 ${msg.sender === "user" ? "bg-primary text-white align-self-end" : "bg-light align-self-start"}`}
+                                    className={`p-2 rounded-3 mb-3 ${msg.sender === "user" ? "bg-primary text-white align-self-end" : "bg-light align-self-start"}`}
                                 >
-                                        {msg.text}
+                                    {msg.text.split("\n").map((line, i) => (
+                                        <React.Fragment key={i}>
+                                            {line}
+                                            <br />
+                                        </React.Fragment>
+                                    ))}
                                 </span>
                             )
                         )
@@ -74,12 +119,27 @@ const FormAI = () => {
                 </div>
             </div>
             <div className="card-footer">
-                <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <input type="text" className="form-control shadow-none" ref={inputRef} disabled={isLoading}/>
-                        <button className="input-group-text">
-                            {isLoading ? <MdOutlineCancel size={24} /> : <IoIosSend size={24} className="cursor-pointer" /> }
-                        </button>
+                <form onSubmit={handleSubmit} id="aiForm">
+                    <div className="d-flex align-items-end">
+                        <textarea 
+                            className="form-control shadow-none" 
+                            ref={inputRef} disabled={isLoading} 
+                            style={{resize: "none", overflowY: "hidden"}} 
+                            onChange={handleChange}
+                            onKeyDown={handleKeyDown}
+                            rows={1}
+                        >
+                        </textarea>
+                        {/* <input type="text" className="form-control shadow-none" ref={inputRef} disabled={isLoading}/> */}
+                        {isLoading ? (
+                            <button type="button" className="input-group-text" onClick={handleAbort}>
+                                <MdOutlineCancel size={24} />
+                            </button>
+                        ) : (
+                            <button type="submit" className="input-group-text">
+                                <IoIosSend size={24} className="cursor-pointer" />
+                            </button>
+                        )}
                     </div>
                 </form>
             </div>
