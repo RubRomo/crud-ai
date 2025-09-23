@@ -2,13 +2,15 @@ import React from "react";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { IoIosSend } from "react-icons/io";
 import { MdOutlineCancel } from "react-icons/md";
+import "../styles/Form.css"
+import { type Message } from '../types/crud'
 
-type Message = {
-  text: string;
-  sender: "user" | "system";
-};
+type Props = { 
+    setRefreshFlag: (flag:boolean) => void;
+    refreshFlag: boolean;
+}
 
-const FormAI = () => {
+const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<Message[]>([
@@ -30,16 +32,16 @@ const FormAI = () => {
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
 
-        const userInput = inputRef.current?.value;
+        const prompt = inputRef.current?.value;
 
-        if (userInput) {
+        if (prompt) {
             controllerRef.current = new AbortController();
 
-            setMessages((prevState) => [...prevState, {text: userInput, sender: "user"}])
+            setMessages((prevState) => [...prevState, {text: prompt.trim(), sender: "user"}])
             setLoading(true);
             fetch("http://localhost:3000/products/askai", {
                 method: "POST",
-                body: JSON.stringify({prompt: userInput}),
+                body: JSON.stringify({prompt}),
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -48,6 +50,9 @@ const FormAI = () => {
             .then((response) => response.json())
             .then((response) => {
                 setMessages((prevState) => [...prevState, {text: response.data, sender:"system"}])
+                if(response.hasOwnProperty('refresh') && response.refresh){
+                    setRefreshFlag(!refreshFlag)
+                }
             })
             .catch((error: any) => {
                 console.log(error);
@@ -59,30 +64,32 @@ const FormAI = () => {
                 setLoading(false)
             })
         }
-        if (inputRef.current) {
-            inputRef.current.value = "";
-        }
+        resetPrompt();
     };
 
-    const handleChange = () => {
-        const userInput = inputRef.current;
+    const adjustPromptRows = () => {
+        const prompt = inputRef.current;
         const minRows = 1; 
-        const lineCount = userInput?.value.split('\n').length || minRows;
+        const lineCount = prompt?.value.split('\n').length || minRows;
 
-        if(userInput?.rows){
-            userInput.rows = Math.max(minRows, lineCount);
+        if(prompt){
+            prompt.rows = Math.max(minRows, lineCount);
         }
     }
 
-    const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    const resetPrompt = () => {
+        const prompt = inputRef.current;
+        if(prompt){
+            prompt.rows = 1;
+            prompt.value = "";
+        }
+    }
+
+    const handleEnterSubmit = (e: KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            const userInput = inputRef.current;
             // it calls dynamically the form from the node where event was triggered
             handleSubmit(e as unknown as FormEvent);
-            if(userInput?.rows){
-                userInput.rows = 1;
-            }
         }
     }
 
@@ -115,22 +122,21 @@ const FormAI = () => {
                             )
                         )
                     }
-                    {isLoading ? <span className="text-muted">Loading ...</span> : ""}
+                    {isLoading ? <span className="text-muted fade-loop">Loading ...</span> : ""}
                 </div>
             </div>
             <div className="card-footer">
                 <form onSubmit={handleSubmit} id="aiForm">
-                    <div className="d-flex align-items-end">
+                    <div className="d-flex align-items-end gap-2">
                         <textarea 
                             className="form-control shadow-none" 
                             ref={inputRef} disabled={isLoading} 
                             style={{resize: "none", overflowY: "hidden"}} 
-                            onChange={handleChange}
-                            onKeyDown={handleKeyDown}
+                            onChange={adjustPromptRows}
+                            onKeyDown={handleEnterSubmit}
                             rows={1}
                         >
                         </textarea>
-                        {/* <input type="text" className="form-control shadow-none" ref={inputRef} disabled={isLoading}/> */}
                         {isLoading ? (
                             <button type="button" className="input-group-text" onClick={handleAbort}>
                                 <MdOutlineCancel size={24} />

@@ -1,23 +1,21 @@
 import { useEffect, useState } from "react";
+import { type Product } from '../types/crud'
 
-type User = {
-    id: number;
-    name: string;
-    price: number;
-    stock: number;
-    active: number;
-};
 
-const ProductsTable = () => {
+type Props = { 
+    refreshFlag: boolean;
+}
 
-    const [products, setProducts] = useState<User[]>([]);
+const ProductsTable = ({ refreshFlag } : Props) => {
+
+    const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
         fetch("http://localhost:3000/products")
             .then((response) => response.json())
-            .then((response : { data: User[] }) => setProducts(response.data))
+            .then((response : { data: Product[] }) => setProducts(response.data))
             .catch((error : Error) => console.log(error));
-    }, []);
+    }, [refreshFlag]);
 
     return (
         <div className="container mt-5">
@@ -33,7 +31,7 @@ const ProductsTable = () => {
                 </thead>
                 <tbody>
                     {
-                        products.map((product: User) => {
+                        products.map((product: Product) => {
                             return (
                                 <tr key={product.id}>
                                     <td>{product.id}</td>
