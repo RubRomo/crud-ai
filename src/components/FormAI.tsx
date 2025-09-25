@@ -2,8 +2,13 @@ import React from "react";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { IoIosSend } from "react-icons/io";
 import { MdOutlineCancel } from "react-icons/md";
+import { BsRobot } from "react-icons/bs";
+import { LiaUserSecretSolid } from "react-icons/lia";
 import "../styles/Form.css"
 import { type Message } from '../types/crud'
+
+import aiChatIcon from '../assets/icons/ai-chat-icon.png';
+import userChatIcon from '../assets/icons/user-chat-icon.png';
 
 type Props = { 
     setRefreshFlag: (flag:boolean) => void;
@@ -14,7 +19,10 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<Message[]>([
-        {text: "Hello! how could I support you?", sender: "system"}
+        {text: "Hello! how could I support you?", sender: "system"},
+        {text: `Hello! how could /n I support /n you?
+            second line here
+            third lune here`, sender: "user"}
     ]);
     const [isLoading, setLoading ] = useState(false);
     const controllerRef = useRef<AbortController | null>(null);
@@ -108,17 +116,24 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
                 <div className="d-flex flex-column" style={{height: "200px", overflowY: "auto"}} ref={containerRef}>
                     {
                         messages.map((msg, index) => (
-                                <span 
-                                    key={index} 
-                                    className={`p-2 rounded-3 mb-3 ${msg.sender === "user" ? "bg-primary text-white align-self-end" : "bg-light align-self-start"}`}
-                                >
-                                    {msg.text.split("\n").map((line, i) => (
-                                        <React.Fragment key={i}>
-                                            {line}
-                                            <br />
-                                        </React.Fragment>
-                                    ))}
-                                </span>
+                            <div className={`d-flex gap-2 ${msg.sender === "user" ? "flex-row-reverse align-self-end" : "align-self-start"}`}>
+                                <div className="mt-1 align-self-start bg-info rounded-5" style={{width: "32px", height: "32px"}}>
+                                    { msg.sender === "user" ? <img className="w-100" src={userChatIcon} /> : <img className="w-100" src={aiChatIcon}/> }
+                                </div>
+                                <div className={`${msg.sender === "user" ? "message-wrapper-right" : ""}`}>
+                                    <div 
+                                        key={index} 
+                                        className={`p-2 rounded-3 mb-3 ${msg.sender === "user" ? "bg-primary text-white align-self-end" : "bg-light align-self-start"}`}
+                                    >
+                                        {msg.text.split("\n").map((line, i) => (
+                                            <React.Fragment key={i}>
+                                                {line}
+                                                <br />
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
                             )
                         )
                     }

@@ -8,3 +8,20 @@
   50% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+
+.message-wrapper-right {
+    position: relative;
+    z-index: 0;
+}
+
+.message-wrapper-right::after {
+  content: '';
+  position: absolute;
+  top: 0px;
+  right: -16px;
+  border-top: 0px solid transparent;
+  border-bottom: 40px solid transparent;
+  border-left: 74px solid #0d6efd; /* Use your bubble background color */
+  z-index: -1;
+}
