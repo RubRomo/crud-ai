@@ -2,8 +2,6 @@ import React from "react";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { IoIosSend } from "react-icons/io";
 import { MdOutlineCancel } from "react-icons/md";
-import { BsRobot } from "react-icons/bs";
-import { LiaUserSecretSolid } from "react-icons/lia";
 import "../styles/Form.css"
 import { type Message } from '../types/crud'
 
@@ -19,10 +17,7 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<Message[]>([
-        {text: "Hello! how could I support you?", sender: "system"},
-        {text: `Hello! how could /n I support /n you?
-            second line here
-            third lune here`, sender: "user"}
+        {role: "assistant", content: "Hello! how could I support you?"},
     ]);
     const [isLoading, setLoading ] = useState(false);
     const controllerRef = useRef<AbortController | null>(null);
@@ -45,11 +40,16 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
         if (prompt) {
             controllerRef.current = new AbortController();
 
-            setMessages((prevState) => [...prevState, {text: prompt.trim(), sender: "user"}])
+            let newMessages: Message[] = [...messages, {role: "user", content: prompt.trim()}];
+            setMessages(newMessages)
+            // keep last 20 messages
+            if (newMessages.length > 1) {
+                newMessages = newMessages.slice(-1);
+            }
             setLoading(true);
             fetch("http://localhost:3000/products/askai", {
                 method: "POST",
-                body: JSON.stringify({prompt}),
+                body: JSON.stringify({messages : newMessages}),
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -57,7 +57,7 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
             })
             .then((response) => response.json())
             .then((response) => {
-                setMessages((prevState) => [...prevState, {text: response.data, sender:"system"}])
+                setMessages((prevState) => [...prevState, {role:"assistant", content: response.data}])
                 if(response.hasOwnProperty('refresh') && response.refresh){
                     setRefreshFlag(!refreshFlag)
                 }
@@ -116,16 +116,16 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
                 <div className="d-flex flex-column" style={{height: "200px", overflowY: "auto"}} ref={containerRef}>
                     {
                         messages.map((msg, index) => (
-                            <div className={`d-flex gap-2 ${msg.sender === "user" ? "flex-row-reverse align-self-end" : "align-self-start"}`}>
+                            <div className={`d-flex gap-2 ${msg.role === "user" ? "flex-row-reverse align-self-end" : "align-self-start"}`}>
                                 <div className="mt-1 align-self-start bg-info rounded-5" style={{width: "32px", height: "32px"}}>
-                                    { msg.sender === "user" ? <img className="w-100" src={userChatIcon} /> : <img className="w-100" src={aiChatIcon}/> }
+                                    { msg.role === "user" ? <img className="w-100" src={userChatIcon} /> : <img className="w-100" src={aiChatIcon}/> }
                                 </div>
-                                <div className={`${msg.sender === "user" ? "message-wrapper-right" : ""}`}>
+                                <div className={`${msg.role === "user" ? "message-wrapper-right" : ""}`}>
                                     <div 
                                         key={index} 
-                                        className={`p-2 rounded-3 mb-3 ${msg.sender === "user" ? "bg-primary text-white align-self-end" : "bg-light align-self-start"}`}
+                                        className={`p-2 rounded-3 mb-3 ${msg.role === "user" ? "bg-primary text-white align-self-end" : "bg-light align-self-start"}`}
                                     >
-                                        {msg.text.split("\n").map((line, i) => (
+                                        {msg.content.split("\n").map((line, i) => (
                                             <React.Fragment key={i}>
                                                 {line}
                                                 <br />

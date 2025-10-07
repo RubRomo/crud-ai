@@ -7,6 +7,6 @@ export type Product = {
 };
 
 export type Message = {
-  text: string;
-  sender: "user" | "system";
+  role: "user" | "assistant";
+  content: string;
 };
