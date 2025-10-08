@@ -37,13 +37,13 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
 
         const prompt = inputRef.current?.value;
 
-        if (prompt) {
+        if (prompt?.trim()) {
             controllerRef.current = new AbortController();
 
             let newMessages: Message[] = [...messages, {role: "user", content: prompt.trim()}];
             setMessages(newMessages)
             // keep last 20 messages
-            if (newMessages.length > 1) {
+            if (newMessages.length > 10) {
                 newMessages = newMessages.slice(-1);
             }
             setLoading(true);
@@ -120,7 +120,7 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
                                 <div className="mt-1 align-self-start bg-info rounded-5" style={{width: "32px", height: "32px"}}>
                                     { msg.role === "user" ? <img className="w-100" src={userChatIcon} /> : <img className="w-100" src={aiChatIcon}/> }
                                 </div>
-                                <div className={`${msg.role === "user" ? "message-wrapper-right" : ""}`}>
+                                <div className={`${msg.role === "user" ? "message-wrapper-right" : "message-wrapper-left"}`}>
                                     <div 
                                         key={index} 
                                         className={`p-2 rounded-3 mb-3 ${msg.role === "user" ? "bg-primary text-white align-self-end" : "bg-light align-self-start"}`}

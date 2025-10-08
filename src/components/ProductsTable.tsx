@@ -21,7 +21,7 @@ const ProductsTable = ({ refreshFlag } : Props) => {
         <div className="container mt-5">
             <table className="table table-striped">
                 <thead>
-                    <tr>
+                    <tr className="table-dark">
                         <th>ID</th>
                         <th>Name</th>
                         <th>Price</th>
