@@ -1,0 +1,23 @@
+.empty-row {
+    --bs-table-striped-bg: transparent;
+    --bs-table-border-color: transparent;
+    border-style:none !important;
+}
+
+.page-link {
+    color:black;
+}
+
+.active>.page-link {
+    background-color: #212529;
+}
+
+.page-link:focus {
+    outline: none;
+    box-shadow: none;
+    color: white;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}

@@ -109,20 +109,19 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
     }
 
   return (
-    <div className="container mt-5">
+    <div className="container my-3 my-md-5">
         <div className="card">
             <div className="card-header">Chat</div>
             <div className="card-body">
                 <div className="d-flex flex-column" style={{height: "200px", overflowY: "auto"}} ref={containerRef}>
                     {
                         messages.map((msg, index) => (
-                            <div className={`d-flex gap-2 ${msg.role === "user" ? "flex-row-reverse align-self-end" : "align-self-start"}`}>
+                            <div className={`d-flex gap-2 ${msg.role === "user" ? "flex-row-reverse align-self-end" : "align-self-start"}`} key={index} >
                                 <div className="mt-1 align-self-start bg-info rounded-5" style={{width: "32px", height: "32px"}}>
                                     { msg.role === "user" ? <img className="w-100" src={userChatIcon} /> : <img className="w-100" src={aiChatIcon}/> }
                                 </div>
                                 <div className={`${msg.role === "user" ? "message-wrapper-right" : "message-wrapper-left"}`}>
                                     <div 
-                                        key={index} 
                                         className={`p-2 rounded-3 mb-3 ${msg.role === "user" ? "bg-primary text-white align-self-end" : "bg-light align-self-start"}`}
                                     >
                                         {msg.content.split("\n").map((line, i) => (
