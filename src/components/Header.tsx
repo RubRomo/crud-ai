@@ -1,29 +1,11 @@
 import { useEffect, useState } from "react";
 
-const Navbar = () => {
-  const [scrolled, setScrolled] = useState(false);
+const Header = () => {
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const screenHeight = window.innerHeight;
-      const navbar = document.querySelector("nav");
-      setScrolled(window.scrollY > 50);
-      if (window.scrollY > screenHeight) {
-        navbar?.classList.add("bg-dark-mid");
-      } else if (window.scrollY > 50) {
-        navbar?.classList.remove("bg-dark-mid");
-        navbar?.classList.add("bg-dark-low");
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <nav
-      className={`navbar navbar-dark bg-transparent fixed-top p-0 ${
-        scrolled ? "bg-dark-low" : ""
-      }`}
+      className={`navbar navbar-dark bg-dark p-0`}
     >
       <div className="container">
         {/* Toggler only visible on mobile */}
@@ -43,28 +25,8 @@ const Navbar = () => {
         <div className="d-none d-lg-flex ms-auto">
           <ul className="navbar-nav flex-row">
             <li className="nav-item mx-2">
-              <a className="nav-link" href="#">
-                Home
-              </a>
-            </li>
-            <li className="nav-item mx-2">
               <a className="nav-link" href="#about">
-                About
-              </a>
-            </li>
-            <li className="nav-item mx-2">
-              <a className="nav-link" href="#skills">
-                Skills
-              </a>
-            </li>
-            <li className="nav-item mx-2">
-              <a className="nav-link" href="#projects">
-                Projects
-              </a>
-            </li>
-            <li className="nav-item mx-2">
-              <a className="nav-link" href="#contact">
-                Contact
+                Go to Portfolio
               </a>
             </li>
           </ul>
@@ -124,4 +86,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Header;

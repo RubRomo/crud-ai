@@ -2,7 +2,7 @@ import { useState } from "react";
 import FormAI from "./components/FormAI"
 import ProductsTable from "./components/ProductsTable"
 import Footer from "./components/Footer";
-import Navbar from "./components/Navbar";
+import Header from "./components/Header";
 
 function App() {
 
@@ -10,9 +10,9 @@ function App() {
 
   return (
     <>
-      <Navbar />
+      <Header />
       <div className="text-center">
-        <h1 className="display-3">PRODUCTS CRUD AI</h1>
+        <h1 className="display-3 my-3 my-md-5">PRODUCTS CRUD AI</h1>
       </div>
       <ProductsTable refreshFlag = { refreshFlag } />
       <FormAI refreshFlag={ refreshFlag } setRefreshFlag={ setRefreshFlag } />
