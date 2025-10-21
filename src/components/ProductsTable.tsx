@@ -9,8 +9,9 @@ type Props = {
 const ProductsTable = ({ refreshFlag } : Props) => {
 
     const [products, setProducts] = useState<Product[]>([]);
+    const [isTableLoading, setTableLoading ] = useState(false);
 
-    const rowsPerPage = 10;
+    const [rowsPerPage, setRowsPerPage] = useState(5);
     const [page, setPage] = useState(1);
 
     const start = (page - 1) * rowsPerPage;
@@ -20,15 +21,46 @@ const ProductsTable = ({ refreshFlag } : Props) => {
     const currentRows = products.slice(start, end);
 
     useEffect(() => {
+        setTableLoading(true);
         fetch("http://localhost:3000/products")
             .then((response) => response.json())
             .then((response : { data: Product[] }) => setProducts(response.data))
-            .catch((error : Error) => console.log(error));
+            .catch((error : Error) => console.log(error))
+            .finally(() => {
+                setTimeout(() => {
+                    setTableLoading(false);
+                }, 1000)
+            });
     }, [refreshFlag]);
+
+    const handleChangePage = (action : "next" | "prev") => {
+        if (action === "next" && page < totalPages) {
+            setPage(page + 1);
+        }
+        if (action === "prev" && page > 1) {
+            setPage(page - 1);
+        }
+    }
+
+    const handleChangeEntriesPerPage = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setRowsPerPage(parseInt(event.target.value))
+    }
 
     return (
         <>
-        <div className="container my-3 my-md-5">
+        <div className="container position-relative my-3">
+            <div className={`position-absolute ${isTableLoading ? "" : "d-none"} d-flex w-100 h-100 top-0 start-0 justify-content-center align-items-center bg-light bg-opacity-50 z-2`}>
+                <div className="spinner-border text-info" style={{width: "3rem", height: "3rem"}} role="status">
+                    <span className="sr-only">Loading...</span>
+                </div>
+            </div>
+            <div className="d-flex flex-row py-3 gap-2">
+                <select defaultValue="5" onChange={(event) => handleChangeEntriesPerPage(event)}>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                </select>
+                <span className="text-muted">Entries per page</span>
+            </div>
             <table className="table table-striped table-borderless">
                 <thead>
                     <tr className="table-dark">
@@ -60,16 +92,16 @@ const ProductsTable = ({ refreshFlag } : Props) => {
                     ))}
                 </tbody>
             </table>
-            <nav>
+            <nav aria-label="Table pagination">
                 <ul className="pagination justify-content-between">
                     <div>
                         <li className="text-muted">
-                            Showing 1 to 10 of 57 entries
+                            Showing {start + 1} to {end <= products.length ? end : products.length} of {products.length} entries
                         </li>
                     </div>
-                    <div className="d-flex text-muted">
+                    <div className="d-flex text-muted z-1">
                         <li className="page-item cursor-pointer">
-                            <a className="page-link border-0 text-muted" aria-label="Previous">
+                            <a className="page-link border-0 text-muted" aria-label="Previous" onClick={() => handleChangePage("prev")}>
                                 <span aria-hidden="true">&laquo;</span>
                                 <span className="sr-only">Previous</span>
                             </a>
@@ -85,7 +117,7 @@ const ProductsTable = ({ refreshFlag } : Props) => {
                             </li>
                         ))}
                         <li className="page-item cursor-pointer">
-                            <a className="page-link border-0 text-muted" aria-label="Next">
+                            <a className="page-link border-0 text-muted" aria-label="Next" onClick={() => handleChangePage("next")}>
                                 <span aria-hidden="true">&raquo;</span>
                                 <span className="sr-only">Next</span>
                             </a>

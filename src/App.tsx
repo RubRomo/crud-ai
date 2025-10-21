@@ -14,8 +14,8 @@ function App() {
       <div className="text-center">
         <h1 className="display-3 my-3 my-md-5">PRODUCTS CRUD AI</h1>
       </div>
-      <ProductsTable refreshFlag = { refreshFlag } />
-      <FormAI refreshFlag={ refreshFlag } setRefreshFlag={ setRefreshFlag } />
+      <ProductsTable refreshFlag={refreshFlag} />
+      <FormAI refreshFlag={refreshFlag} setRefreshFlag={setRefreshFlag} />
       <Footer />
     </>
   )

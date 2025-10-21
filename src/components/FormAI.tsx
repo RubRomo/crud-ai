@@ -14,12 +14,13 @@ type Props = {
 }
 
 const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
+
+    const [isChatLoading, setChatLoading ] = useState(false);
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<Message[]>([
         {role: "assistant", content: "Hello! how could I support you?"},
     ]);
-    const [isLoading, setLoading ] = useState(false);
     const controllerRef = useRef<AbortController | null>(null);
 
     useEffect(() => {
@@ -42,11 +43,11 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
 
             let newMessages: Message[] = [...messages, {role: "user", content: prompt.trim()}];
             setMessages(newMessages)
-            // keep last 20 messages
+            // keep last 10 messages
             if (newMessages.length > 10) {
                 newMessages = newMessages.slice(-1);
             }
-            setLoading(true);
+            setChatLoading(true);
             fetch("http://localhost:3000/products/askai", {
                 method: "POST",
                 body: JSON.stringify({messages : newMessages}),
@@ -55,7 +56,12 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
                 },
                 signal: controllerRef.current.signal
             })
-            .then((response) => response.json())
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json()
+            })
             .then((response) => {
                 setMessages((prevState) => [...prevState, {role:"assistant", content: response.data}])
                 if(response.hasOwnProperty('refresh') && response.refresh){
@@ -63,13 +69,12 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
                 }
             })
             .catch((error: any) => {
-                console.log(error);
-                if(error.name !== "AbortError"){
-                    alert("Sorry there was a problem.")
-                }
+                console.log("error here");
+                if(error.name === "AbortError") return
+                setMessages((prevState) => [...prevState, {role:"assistant", content: "Sorry there was a problem."}])
             })
             .finally(() => {
-                setLoading(false)
+                setChatLoading(false)
             })
         }
         resetPrompt();
@@ -117,7 +122,7 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
                     {
                         messages.map((msg, index) => (
                             <div className={`d-flex gap-2 ${msg.role === "user" ? "flex-row-reverse align-self-end" : "align-self-start"}`} key={index} >
-                                <div className="mt-1 align-self-start bg-info rounded-5" style={{width: "32px", height: "32px"}}>
+                                <div className="mt-1 align-self-start flex-shrink-0 bg-info rounded-5" style={{width: "32px", height: "32px"}}>
                                     { msg.role === "user" ? <img className="w-100" src={userChatIcon} /> : <img className="w-100" src={aiChatIcon}/> }
                                 </div>
                                 <div className={`${msg.role === "user" ? "message-wrapper-right" : "message-wrapper-left"}`}>
@@ -136,7 +141,7 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
                             )
                         )
                     }
-                    {isLoading ? <span className="text-muted fade-loop">Loading ...</span> : ""}
+                    {isChatLoading ? <span className="text-muted fade-loop">Loading ...</span> : ""}
                 </div>
             </div>
             <div className="card-footer">
@@ -144,14 +149,14 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
                     <div className="d-flex align-items-end gap-2">
                         <textarea 
                             className="form-control shadow-none" 
-                            ref={inputRef} disabled={isLoading} 
+                            ref={inputRef} disabled={isChatLoading} 
                             style={{resize: "none", overflowY: "hidden"}} 
                             onChange={adjustPromptRows}
                             onKeyDown={handleEnterSubmit}
                             rows={1}
                         >
                         </textarea>
-                        {isLoading ? (
+                        {isChatLoading ? (
                             <button type="button" className="input-group-text" onClick={handleAbort}>
                                 <MdOutlineCancel size={24} />
                             </button>
