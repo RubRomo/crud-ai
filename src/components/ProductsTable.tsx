@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { type Product } from '../types/crud'
 import "../styles/Table.css"
 
@@ -13,12 +13,46 @@ const ProductsTable = ({ refreshFlag } : Props) => {
 
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [page, setPage] = useState(1);
+    const [isMobile, setIsMobile] = useState(false);
 
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
+
+    const startRow = (page - 1) * rowsPerPage;
+    const endRow = startRow + rowsPerPage;
     const totalPages = Math.ceil(products.length / rowsPerPage);
 
-    const currentRows = products.slice(start, end);
+    const currentRows = products.slice(startRow, endRow);
+
+    // Compute visible page buttons. On mobile, limit to max 3 pages around the current page.
+    const visiblePages = useMemo(() => {
+        const maxMobilePages = 3;
+        if (!isMobile) {
+            return Array.from({ length: totalPages }, (_, i) => i + 1);
+        }
+
+        // If total pages less than or equal to limit, show all
+        if (totalPages <= maxMobilePages) return Array.from({ length: totalPages }, (_, i) => i + 1);
+
+        // Try to center current page in the pagination when possible
+        let startPage = Math.max(1, page - Math.floor(maxMobilePages / 2));
+        let endPage = startPage + maxMobilePages - 1;
+
+        // If endPage exceeds total, shift pagination to the left
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = endPage - maxMobilePages + 1;
+        }
+
+        const pages: number[] = [];
+        for (let p = startPage; p <= endPage; p++) pages.push(p);
+        return pages;
+    }, [page, isMobile, totalPages]);
+    
 
     useEffect(() => {
         setTableLoading(true);
@@ -93,35 +127,37 @@ const ProductsTable = ({ refreshFlag } : Props) => {
                 </tbody>
             </table>
             <nav aria-label="Table pagination">
-                <ul className="pagination justify-content-between">
-                    <div>
-                        <li className="text-muted">
-                            Showing {start + 1} to {end <= products.length ? end : products.length} of {products.length} entries
-                        </li>
-                    </div>
-                    <div className="d-flex text-muted z-1">
-                        <li className="page-item cursor-pointer">
-                            <a className="page-link border-0 text-muted" aria-label="Previous" onClick={() => handleChangePage("prev")}>
-                                <span aria-hidden="true">&laquo;</span>
-                                <span className="sr-only">Previous</span>
-                            </a>
-                        </li>
-                        {Array.from({ length: totalPages }, (_, i) => (
-                            <li
-                            key={i}
-                            className={`page-item ${page === i + 1 ? "active" : ""}`}
-                            >
-                                <button className="page-link border-0" onClick={() => setPage(i + 1)}>
-                                    {i + 1}
-                                </button>
+                <ul className="pagination container d-block justify-content-between">
+                    <div className="row align-items-center">
+                        <div className="col-12 col-md-6">
+                            <li className="text-muted">
+                                Showing {startRow + 1} to {endRow <= products.length ? endRow : products.length} of {products.length} entries
                             </li>
-                        ))}
-                        <li className="page-item cursor-pointer">
-                            <a className="page-link border-0 text-muted" aria-label="Next" onClick={() => handleChangePage("next")}>
-                                <span aria-hidden="true">&raquo;</span>
-                                <span className="sr-only">Next</span>
-                            </a>
-                        </li>
+                        </div>
+                        <div className="col-12 col-md-6 d-flex justify-content-end text-muted z-1">
+                            <li className="page-item cursor-pointer">
+                                <a className="page-link border-0 text-muted" aria-label="Previous" onClick={() => handleChangePage("prev")}>
+                                    <span aria-hidden="true">&laquo;</span>
+                                    <span className="sr-only">Previous</span>
+                                </a>
+                            </li>
+                            {visiblePages.map((p) => (
+                                <li
+                                key={p}
+                                className={`page-item ${page === p ? "active" : ""}`}
+                                >
+                                    <button className="page-link border-0" onClick={() => setPage(p)}>
+                                        {p}
+                                    </button>
+                                </li>
+                            ))}
+                            <li className="page-item cursor-pointer">
+                                <a className="page-link border-0 text-muted" aria-label="Next" onClick={() => handleChangePage("next")}>
+                                    <span aria-hidden="true">&raquo;</span>
+                                    <span className="sr-only">Next</span>
+                                </a>
+                            </li>
+                        </div>
                     </div>
                 </ul>
             </nav>

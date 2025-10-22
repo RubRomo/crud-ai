@@ -13,7 +13,7 @@ type Props = {
     refreshFlag: boolean;
 }
 
-const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
+const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
 
     const [isChatLoading, setChatLoading ] = useState(false);
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -173,4 +173,4 @@ const FormAI = ({ setRefreshFlag, refreshFlag } : Props) => {
   )
 }
 
-export default FormAI
+export default ChatAI
