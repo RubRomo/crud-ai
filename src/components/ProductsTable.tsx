@@ -15,6 +15,11 @@ const ProductsTable = ({ refreshFlag } : Props) => {
     const [page, setPage] = useState(1);
     const [isMobile, setIsMobile] = useState(false);
 
+    const startRow = (page - 1) * rowsPerPage;
+    const endRow = startRow + rowsPerPage;
+    const currentRows = products.slice(startRow, endRow);
+    const totalPages = Math.ceil(products.length / rowsPerPage);
+
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
         checkMobile();
@@ -22,11 +27,11 @@ const ProductsTable = ({ refreshFlag } : Props) => {
         return () => window.removeEventListener("resize", checkMobile);
     }, []);
 
-    const startRow = (page - 1) * rowsPerPage;
-    const endRow = startRow + rowsPerPage;
-    const totalPages = Math.ceil(products.length / rowsPerPage);
-
-    const currentRows = products.slice(startRow, endRow);
+    useEffect(() => {
+        if(totalPages > 0 && page > totalPages){
+            setPage(totalPages);
+        }
+    }, [rowsPerPage]);
 
     // Compute visible page buttons. On mobile, limit to max 3 pages around the current page.
     const visiblePages = useMemo(() => {
@@ -59,7 +64,7 @@ const ProductsTable = ({ refreshFlag } : Props) => {
         fetch("http://localhost:3000/products")
             .then((response) => response.json())
             .then((response : { data: Product[] }) => setProducts(response.data))
-            .catch((error : Error) => console.log(error))
+            .catch((error : Error) => console.log("There was an error fetching the products"))
             .finally(() => {
                 setTimeout(() => {
                     setTableLoading(false);
@@ -89,7 +94,7 @@ const ProductsTable = ({ refreshFlag } : Props) => {
                 </div>
             </div>
             <div className="d-flex flex-row py-3 gap-2">
-                <select defaultValue="5" onChange={(event) => handleChangeEntriesPerPage(event)}>
+                <select id="entries" className="" defaultValue="5" onChange={(event) => handleChangeEntriesPerPage(event)}>
                     <option value="5">5</option>
                     <option value="10">10</option>
                 </select>
@@ -129,12 +134,12 @@ const ProductsTable = ({ refreshFlag } : Props) => {
             <nav aria-label="Table pagination">
                 <ul className="pagination container d-block justify-content-between">
                     <div className="row align-items-center">
-                        <div className="col-12 col-md-6">
+                        <div className="col-6 col-md-6">
                             <li className="text-muted">
                                 Showing {startRow + 1} to {endRow <= products.length ? endRow : products.length} of {products.length} entries
                             </li>
                         </div>
-                        <div className="col-12 col-md-6 d-flex justify-content-end text-muted z-1">
+                        <div className="col-6 col-md-6 d-flex justify-content-end text-muted z-1">
                             <li className="page-item cursor-pointer">
                                 <a className="page-link border-0 text-muted" aria-label="Previous" onClick={() => handleChangePage("prev")}>
                                     <span aria-hidden="true">&laquo;</span>

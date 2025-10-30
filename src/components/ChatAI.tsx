@@ -19,17 +19,22 @@ const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<Message[]>([
-        {role: "assistant", content: "Hello! how could I support you?"},
+        {role: "assistant", content: "Hello! 👋 I can help you create 🆕, read 📖, update ✏️, and delete 🗑️ products — and even handle multiple tasks 🤹‍♂️ in one conversation. \nTell me what you'd like to do!"},
     ]);
     const controllerRef = useRef<AbortController | null>(null);
 
     useEffect(() => {
         const chatContainer = containerRef.current;
-        if (chatContainer) {
-            chatContainer.scrollTo({
-                top: chatContainer.scrollHeight,
-                behavior: "smooth"
-            });
+
+        const msgElements = chatContainer?.querySelectorAll('div.message-wrapper-right');
+        if (msgElements?.length) {
+            const last = msgElements[msgElements.length - 1] as HTMLElement;
+            // scroll so the top of the last user message
+            chatContainer?.scrollTo({
+                top: last.offsetTop,
+                behavior: "smooth",
+            })
+            return;
         }
     }, [messages]);
 
@@ -42,10 +47,11 @@ const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
             controllerRef.current = new AbortController();
 
             let newMessages: Message[] = [...messages, {role: "user", content: prompt.trim()}];
+            console.log(newMessages);
             setMessages(newMessages)
             // keep last 10 messages
             if (newMessages.length > 10) {
-                newMessages = newMessages.slice(-1);
+                newMessages = newMessages.slice(-10);
             }
             setChatLoading(true);
             fetch("http://localhost:3000/products/askai", {
@@ -69,12 +75,18 @@ const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
                 }
             })
             .catch((error: any) => {
-                console.log("error here");
                 if(error.name === "AbortError") return
-                setMessages((prevState) => [...prevState, {role:"assistant", content: "Sorry there was a problem."}])
+                if (error.message.includes("429")) {
+                    setMessages((prevState) => [...prevState, {role:"assistant", content: "Rate limit exceeded. Please wait a moment and try again."}]);
+                    return;
+                }
+                setMessages((prevState) => [...prevState, {role:"assistant", content: "Sorry there was a problem."}]);
             })
             .finally(() => {
-                setChatLoading(false)
+                setChatLoading(false);
+                setTimeout(() => {
+                    inputRef.current?.focus();
+                },500);
             })
         }
         resetPrompt();
