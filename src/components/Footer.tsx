@@ -1,4 +1,5 @@
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
   return (
     <footer className="bg-dark bg-gradient text-white text-center py-3 my-3 my-md-5">
       <div className="container-fluid">
@@ -21,7 +22,7 @@ const Footer = () => {
             />
           </div>
           <p className="lead">
-            <small>© 2025 Rubén Romo. All Rights Reserved.</small>
+            <small>© { currentYear } Rubén Romo. All Rights Reserved.</small>
           </p>
         </div>
       </div>
