@@ -54,7 +54,7 @@ const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
                 newMessages = newMessages.slice(-10);
             }
             setChatLoading(true);
-            fetch("http://localhost:3000/products/askai", {
+            fetch(`${ import.meta.env.VITE_PRODUCTS_API_URL || "http://localhost:3000" }/products/askai`, {
                 method: "POST",
                 body: JSON.stringify({messages : newMessages}),
                 headers: {

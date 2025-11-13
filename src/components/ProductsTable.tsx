@@ -61,10 +61,10 @@ const ProductsTable = ({ refreshFlag } : Props) => {
 
     useEffect(() => {
         setTableLoading(true);
-        fetch("http://localhost:3000/products")
+        fetch(`${ import.meta.env.VITE_PRODUCTS_API_URL || "http://localhost:3000" }/products`)
             .then((response) => response.json())
             .then((response : { data: Product[] }) => setProducts(response.data))
-            .catch((error : Error) => console.log("There was an error fetching the products"))
+            .catch(() => console.log("There was an error fetching the products"))
             .finally(() => {
                 setTimeout(() => {
                     setTableLoading(false);

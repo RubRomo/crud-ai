@@ -1,8 +1,4 @@
-import { useEffect, useState } from "react";
-
 const Header = () => {
-
-
   return (
     <nav
       className={`navbar navbar-dark bg-dark p-0`}
