@@ -12,7 +12,6 @@ type Props = {
     setRefreshFlag: (flag:boolean) => void;
     refreshFlag: boolean;
 }
-
 const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
 
     const [isChatLoading, setChatLoading ] = useState(false);
@@ -38,8 +37,8 @@ const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
         }
     }, [messages]);
 
-    const handleSubmit = (event: FormEvent) => {
-        event.preventDefault();
+    const handleSubmit = (event?: FormEvent) => {
+        event?.preventDefault();
 
         const prompt = inputRef.current?.value;
 
@@ -125,6 +124,13 @@ const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
         }
     }
 
+    const handleSuggestion = (message : string) => {
+        if(inputRef.current) {
+            inputRef.current.value = message;
+            handleSubmit();
+        }
+    }
+
   return (
     <div className="container my-3 my-md-5">
         <div className="card">
@@ -153,30 +159,64 @@ const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
                             )
                         )
                     }
-                    {isChatLoading ? <span className="text-muted fade-loop">Loading ...</span> : ""}
+                    {isChatLoading ? <span className="text-muted mt-auto fade-loop">Loading ...</span> : ""}
                 </div>
             </div>
             <div className="card-footer">
                 <form onSubmit={handleSubmit} id="aiForm">
-                    <div className="d-flex align-items-end gap-2">
-                        <textarea 
-                            className="form-control shadow-none" 
-                            ref={inputRef} disabled={isChatLoading} 
-                            style={{resize: "none", overflowY: "hidden"}} 
-                            onChange={adjustPromptRows}
-                            onKeyDown={handleEnterSubmit}
-                            rows={1}
-                        >
-                        </textarea>
-                        {isChatLoading ? (
-                            <button type="button" className="input-group-text" onClick={handleAbort}>
-                                <MdOutlineCancel size={24} />
+                    <div className="d-flex flex-column">
+
+                        <div className="d-none d-md-flex gap-2 flex-wrap justify-content-center pt-2 pb-3">
+                            <button 
+                                className={`badge fw-normal rounded-pill text-bg-light border px-3 py-2 shadow-sm keyword-chip ${isChatLoading ? "opacity-50" : ""}`}
+                                onClick={() => handleSuggestion("Add Product")}
+                                disabled={isChatLoading}
+                            >
+                                ➕ Add product
                             </button>
-                        ) : (
-                            <button type="submit" className="input-group-text">
-                                <IoIosSend size={24} className="cursor-pointer" />
+                            <button 
+                                className={`badge fw-normal rounded-pill text-bg-light border px-3 py-2 shadow-sm keyword-chip ${isChatLoading ? "opacity-50" : ""}`}
+                                onClick={() => handleSuggestion("Update product")}
+                                disabled={isChatLoading}
+                            >
+                                ✏️ Update product
                             </button>
-                        )}
+                            <button 
+                                className={`badge fw-normal rounded-pill text-bg-light border px-3 py-2 shadow-sm keyword-chip ${isChatLoading ? "opacity-50" : ""}`}
+                                onClick={() => handleSuggestion("Get product")}
+                                disabled={isChatLoading}
+                            >
+                                🔍 Get product
+                            </button>
+                            <button 
+                                className={`badge fw-normal rounded-pill text-bg-light border px-3 py-2 shadow-sm keyword-chip ${isChatLoading ? "opacity-50" : ""}`}
+                                onClick={() => handleSuggestion("Delete product")}
+                                disabled={isChatLoading}
+                            >
+                                🗑️ Delete product
+                            </button>
+                        </div>
+
+                        <div className="d-flex gap-2">
+                            <textarea 
+                                className="form-control shadow-none" 
+                                ref={inputRef} disabled={isChatLoading} 
+                                style={{resize: "none", overflowY: "hidden"}} 
+                                onChange={adjustPromptRows}
+                                onKeyDown={handleEnterSubmit}
+                                rows={1}
+                            >
+                            </textarea>
+                            {isChatLoading ? (
+                                <button type="button" className="input-group-text" onClick={handleAbort}>
+                                    <MdOutlineCancel size={24} />
+                                </button>
+                            ) : (
+                                <button type="submit" className="input-group-text">
+                                    <IoIosSend size={24} className="cursor-pointer" />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </form>
             </div>

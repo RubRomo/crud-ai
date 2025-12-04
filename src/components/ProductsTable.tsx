@@ -31,7 +31,7 @@ const ProductsTable = ({ refreshFlag } : Props) => {
         if(totalPages > 0 && page > totalPages){
             setPage(totalPages);
         }
-    }, [rowsPerPage]);
+    }, [rowsPerPage, totalPages]);
 
     // Compute visible page buttons. On mobile, limit to max 3 pages around the current page.
     const visiblePages = useMemo(() => {

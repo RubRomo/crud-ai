@@ -36,3 +36,14 @@
   border-right: 24px solid #f8f9fa; /* Use your left bubble background color */
   z-index: -1;
 }
+
+/* moved from ChatAI.tsx - keyword chip hover effect */
+.keyword-chip {
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+.keyword-chip:hover {
+    background-color: #e9f5ff;
+    border-color: #b3e0ff;
+    transform: translateY(-2px);
+}
