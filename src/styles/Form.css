@@ -37,7 +37,7 @@
   z-index: -1;
 }
 
-/* moved from ChatAI.tsx - keyword chip hover effect */
+/* suggestions over effect */
 .keyword-chip {
     cursor: pointer;
     transition: 0.2s ease;
@@ -46,4 +46,10 @@
     background-color: #e9f5ff;
     border-color: #b3e0ff;
     transform: translateY(-2px);
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  filter: invert(1);  /* makes arrow icon black */
+  width: 20px;
 }

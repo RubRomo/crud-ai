@@ -87,13 +87,13 @@ const ProductsTable = ({ refreshFlag } : Props) => {
 
     return (
         <>
-        <div className="container position-relative my-3">
+        <div className="position-relative">
             <div className={`position-absolute ${isTableLoading ? "" : "d-none"} d-flex w-100 h-100 top-0 start-0 justify-content-center align-items-center bg-light bg-opacity-50 z-2`}>
                 <div className="spinner-border text-info" style={{width: "3rem", height: "3rem"}} role="status">
                     <span className="sr-only">Loading...</span>
                 </div>
             </div>
-            <div className="d-flex flex-row py-3 gap-2">
+            <div className="d-flex flex-row pb-3 gap-2">
                 <select id="entries" className="" defaultValue="5" onChange={(event) => handleChangeEntriesPerPage(event)}>
                     <option value="5">5</option>
                     <option value="10">10</option>
@@ -132,7 +132,7 @@ const ProductsTable = ({ refreshFlag } : Props) => {
                 </tbody>
             </table>
             <nav aria-label="Table pagination">
-                <ul className="pagination container d-block justify-content-between">
+                <ul className="pagination container d-block justify-content-between mb-0">
                     <div className="row align-items-center">
                         <div className="col-6 col-md-6">
                             <li className="text-muted">

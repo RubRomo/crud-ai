@@ -9,15 +9,23 @@ function App() {
   const [refreshFlag, setRefreshFlag] = useState<boolean>(false);
 
   return (
-    <>
+    <div className="d-flex flex-column min-vh-100">
       <Header />
       <div className="text-center">
-        <h1 className="display-3 my-3 my-md-4">PRODUCTS CRUD AI</h1>
+        <h1 className="display-3 my-4 my-md-5">PRODUCTS CRUD AI</h1>
       </div>
-      <ProductsTable refreshFlag={refreshFlag} />
-      <ChatAI refreshFlag={refreshFlag} setRefreshFlag={setRefreshFlag} />
+      <div className="container flex-grow-1">
+        <div className="row mb-lg-5">
+          <div className="col-12 col-lg-6">
+            <ProductsTable refreshFlag={refreshFlag} />
+          </div>
+          <div className="col-12 col-lg-6 d-flex py-4 py-lg-0">
+            <ChatAI refreshFlag={refreshFlag} setRefreshFlag={setRefreshFlag} />
+          </div>
+        </div>
+      </div>
       <Footer />
-    </>
+    </div>
   )
 }
 

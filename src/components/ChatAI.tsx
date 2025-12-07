@@ -22,6 +22,13 @@ const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
     ]);
     const controllerRef = useRef<AbortController | null>(null);
 
+    const arrSuggestions: Array<Suggestion> = [
+        { displayText: "➕ Add product", messageText: "Add Product" },
+        { displayText: "✏️ Update product", messageText: "Update product" },
+        { displayText: "🗑️ Delete product", messageText: "Delete product" },
+        { displayText: "🔍 Get product", messageText: "Delete product" }
+    ];
+
     useEffect(() => {
         const chatContainer = containerRef.current;
 
@@ -132,97 +139,150 @@ const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
     }
 
   return (
-    <div className="container my-3 my-md-5">
-        <div className="card">
-            <div className="card-header">Chat</div>
-            <div className="card-body">
-                <div className="d-flex flex-column" style={{height: "200px", overflowY: "auto"}} ref={containerRef}>
-                    {
-                        messages.map((msg, index) => (
-                            <div className={`d-flex gap-2 ${msg.role === "user" ? "flex-row-reverse align-self-end" : "align-self-start"}`} key={index} >
-                                <div className="mt-1 align-self-start flex-shrink-0 bg-info rounded-5" style={{width: "32px", height: "32px"}}>
-                                    { msg.role === "user" ? <img className="w-100" src={userChatIcon} /> : <img className="w-100" src={aiChatIcon}/> }
-                                </div>
-                                <div className={`${msg.role === "user" ? "message-wrapper-right" : "message-wrapper-left"}`}>
-                                    <div 
-                                        className={`p-2 rounded-3 mb-3 ${msg.role === "user" ? "bg-primary text-white align-self-end" : "bg-light align-self-start"}`}
-                                    >
-                                        {msg.content.split("\n").map((line, i) => (
-                                            <React.Fragment key={i}>
-                                                {line}
-                                                <br />
-                                            </React.Fragment>
-                                        ))}
-                                    </div>
+    <div className="card">
+        <div className="card-header">Chat</div>
+        <div className="card-body">
+            <div className="d-flex flex-column" style={{height: "200px", overflowY: "auto"}} ref={containerRef}>
+                {
+                    messages.map((msg, index) => (
+                        <div className={`d-flex gap-2 ${msg.role === "user" ? "flex-row-reverse align-self-end" : "align-self-start"}`} key={index} >
+                            <div className="mt-1 align-self-start flex-shrink-0 bg-info rounded-5" style={{width: "32px", height: "32px"}}>
+                                { msg.role === "user" ? <img className="w-100" src={userChatIcon} /> : <img className="w-100" src={aiChatIcon}/> }
+                            </div>
+                            <div className={`${msg.role === "user" ? "message-wrapper-right" : "message-wrapper-left"}`}>
+                                <div 
+                                    className={`p-2 rounded-3 mb-3 ${msg.role === "user" ? "bg-primary text-white align-self-end" : "bg-light align-self-start"}`}
+                                >
+                                    {msg.content.split("\n").map((line, i) => (
+                                        <React.Fragment key={i}>
+                                            {line}
+                                            <br />
+                                        </React.Fragment>
+                                    ))}
                                 </div>
                             </div>
-                            )
+                        </div>
                         )
-                    }
-                    {isChatLoading ? <span className="text-muted mt-auto fade-loop">Loading ...</span> : ""}
-                </div>
+                    )
+                }
+                {isChatLoading ? <span className="text-muted mt-auto fade-loop">Loading ...</span> : ""}
             </div>
-            <div className="card-footer">
-                <form onSubmit={handleSubmit} id="aiForm">
-                    <div className="d-flex flex-column">
+        </div>
+        <div className="card-footer">
+            <form onSubmit={handleSubmit} id="aiForm">
+                <div className="d-flex flex-column">
 
-                        <div className="d-none d-md-flex gap-2 flex-wrap justify-content-center pt-2 pb-3">
-                            <button 
-                                className={`badge fw-normal rounded-pill text-bg-light border px-3 py-2 shadow-sm keyword-chip ${isChatLoading ? "opacity-50" : ""}`}
-                                onClick={() => handleSuggestion("Add Product")}
-                                disabled={isChatLoading}
-                            >
-                                ➕ Add product
-                            </button>
-                            <button 
-                                className={`badge fw-normal rounded-pill text-bg-light border px-3 py-2 shadow-sm keyword-chip ${isChatLoading ? "opacity-50" : ""}`}
-                                onClick={() => handleSuggestion("Update product")}
-                                disabled={isChatLoading}
-                            >
-                                ✏️ Update product
-                            </button>
-                            <button 
-                                className={`badge fw-normal rounded-pill text-bg-light border px-3 py-2 shadow-sm keyword-chip ${isChatLoading ? "opacity-50" : ""}`}
-                                onClick={() => handleSuggestion("Get product")}
-                                disabled={isChatLoading}
-                            >
-                                🔍 Get product
-                            </button>
-                            <button 
-                                className={`badge fw-normal rounded-pill text-bg-light border px-3 py-2 shadow-sm keyword-chip ${isChatLoading ? "opacity-50" : ""}`}
-                                onClick={() => handleSuggestion("Delete product")}
-                                disabled={isChatLoading}
-                            >
-                                🗑️ Delete product
-                            </button>
-                        </div>
+                    <ItemsCarousel isLoading={isChatLoading} handleClick={handleSuggestion} arrItems={arrSuggestions} />
 
-                        <div className="d-flex gap-2">
-                            <textarea 
-                                className="form-control shadow-none" 
-                                ref={inputRef} disabled={isChatLoading} 
-                                style={{resize: "none", overflowY: "hidden"}} 
-                                onChange={adjustPromptRows}
-                                onKeyDown={handleEnterSubmit}
-                                rows={1}
-                            >
-                            </textarea>
-                            {isChatLoading ? (
-                                <button type="button" className="input-group-text" onClick={handleAbort}>
-                                    <MdOutlineCancel size={24} />
-                                </button>
-                            ) : (
-                                <button type="submit" className="input-group-text">
-                                    <IoIosSend size={24} className="cursor-pointer" />
-                                </button>
-                            )}
-                        </div>
+                    <div className="d-flex gap-2">
+                        <textarea 
+                            className="form-control shadow-none" 
+                            ref={inputRef} disabled={isChatLoading} 
+                            style={{resize: "none", overflowY: "hidden"}} 
+                            onChange={adjustPromptRows}
+                            onKeyDown={handleEnterSubmit}
+                            rows={1}
+                        >
+                        </textarea>
+                        {isChatLoading ? (
+                            <button type="button" className="input-group-text" onClick={handleAbort}>
+                                <MdOutlineCancel size={24} />
+                            </button>
+                        ) : (
+                            <button type="submit" className="input-group-text">
+                                <IoIosSend size={24} className="cursor-pointer" />
+                            </button>
+                        )}
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
   )
+}
+
+type Suggestion = {
+    displayText: string;
+    messageText: string;
+}
+
+type PropsCarousel = {
+  isLoading: boolean;
+  handleClick: ( message : string ) => void;
+  arrItems : Array<Suggestion>;
+};
+
+// step-by-one multi-item carousel
+const ItemsCarousel = ({ isLoading, handleClick, arrItems } : PropsCarousel) => {
+
+    const [startIndex, setStartIndex] = useState(0);
+    const [itemsToShow, setItemsToShow] = useState(0);
+
+    useEffect(() => {
+        const setItemsByWindowSize = () => {
+            // Shows 2 items for small screens, 3 for large devices and 4 for extra large screens
+            // TODO: Make this logic customizable via props
+            if(window.innerWidth >= 1200){
+                setItemsToShow(4);
+            } else if (window.innerWidth >= 992){
+                setItemsToShow(3);
+            } else if (window.innerWidth >= 768){
+                setItemsToShow(4);
+            } else if (window.innerWidth >= 0) {
+                setItemsToShow(2);
+            }
+        };
+        setItemsByWindowSize();
+        window.addEventListener("resize", setItemsByWindowSize);
+        return () => window.removeEventListener("resize", setItemsByWindowSize);
+    }, []);
+
+    const canGoNext = startIndex + itemsToShow < arrItems.length;
+    const canGoPrev = startIndex > 0;
+
+    const visibleItems = arrItems.slice(startIndex, startIndex + itemsToShow);
+
+    const showCarouselControls = itemsToShow < arrItems.length;
+
+    return (
+        <div className="position-relative p-2">
+            {/* Products Row */}
+            <div className="d-flex gap-1 justify-content-center">
+                { showCarouselControls && (
+                    <button
+                        className="carousel-control-prev position-static"
+                        onClick={() => canGoPrev && setStartIndex(startIndex - 1)}
+                        disabled={!canGoPrev}
+                    >
+                        <span className="carousel-control-prev-icon" />
+                    </button>
+                ) }
+
+                {visibleItems.map((suggestion, index) => (
+                
+                <button
+                    key={index}
+                    className={`badge fw-normal rounded-pill text-bg-light border px-3 py-2 shadow-sm keyword-chip ${isLoading ? "opacity-50" : ""}`}
+                    onClick={() => handleClick( suggestion.messageText )}
+                    disabled={isLoading}
+                >
+                    { suggestion.displayText }
+                </button>
+                ))}
+
+                { showCarouselControls && (
+                    <button
+                        className="carousel-control-next position-static"
+                        onClick={() => canGoNext && setStartIndex(startIndex + 1)}
+                        disabled={!canGoNext}
+                    >
+                        <span className="carousel-control-next-icon" />
+                    </button>
+                ) }
+            </div>
+
+        </div>
+    )
 }
 
 export default ChatAI
