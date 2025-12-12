@@ -23,10 +23,11 @@ const ChatAI = ({ setRefreshFlag, refreshFlag } : Props) => {
     const controllerRef = useRef<AbortController | null>(null);
 
     const arrSuggestions: Array<Suggestion> = [
-        { displayText: "➕ Add product", messageText: "Add Product" },
-        { displayText: "✏️ Update product", messageText: "Update product" },
-        { displayText: "🗑️ Delete product", messageText: "Delete product" },
-        { displayText: "🔍 Get product", messageText: "Delete product" }
+        { displayText: "➕ Add Product", messageText: "Add Product" },
+        { displayText: "✏️ Update Product", messageText: "Update product" },
+        { displayText: "🗑️ Delete Product", messageText: "Delete product" },
+        { displayText: "🔍 Get Product", messageText: "Get product" },
+        { displayText: "📊 Get Summary", messageText: "Get products summary by status" }
     ];
 
     useEffect(() => {
