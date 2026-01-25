@@ -21,7 +21,7 @@ const Header = () => {
         <div className="d-none d-lg-flex ms-auto">
           <ul className="navbar-nav flex-row">
             <li className="nav-item mx-2">
-              <a className="nav-link" href="#about">
+              <a className="nav-link" href="https://rubenromo.dev/" target="_blank" rel="noopener noreferrer">
                 Go to Portfolio
               </a>
             </li>
